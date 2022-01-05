@@ -199,6 +199,16 @@ except ImportError:
         "pip3 install googletrans==3.1.0a0")
 
     from googletrans import Translator
+except AttributeError:
+    os.system(
+        "pip3 install selenium")
+
+    os.system(
+        "pip3 install googletrans==3.1.0a0")
+
+    from googletrans import Translator
+except Exception:
+    pass
 from selenium import webdriver
 
 try:
@@ -553,7 +563,7 @@ if conformation:
                                     else:
                                         pass'''
                                     try:
-                                        os.system('nohup python ' + os.path.join(sys.path[0], 'start_app.py') + ' &')
+                                        os.system('nohup python3 ' + os.path.join(sys.path[0], 'start_app.py') + ' &')
                                     except FileNotFoundError:
                                         os.system("nohup " + str(result_app) + " &")
 
@@ -564,46 +574,89 @@ if conformation:
                             webbrowser.open(
                                 "https://www.google.com/search?q=" + inquest.replace("search", "").replace(" ", "+"))
                     elif "close " in inquest or "stop " in inquest:
-                        try:
-                            from process_list import ongoing_list
 
-                            success = os.system("pkill " +
-                                                process.extractOne(
-                                                    inquest.replace("close", "").replace("stop", "").replace(" ", ""),
-                                                    ongoing_list())[0])
-                            if success != 0:
-                                with open(os.path.join(sys.path[0], "app name.txt"), 'w+') as write_app:
-                                    write_app.write(inquest.replace("close", "").replace("stop", "").replace(" ", ""))
-                                    write_app.close()
-                                os.system("python3 " + os.path.join(sys.path[0], "select_app.py"))
-                                with open(os.path.join(sys.path[0], "app_name.txt"), "r") as read_app_name:
-                                    result_app = read_app_name.read()
-                                    read_app_name.close()
-                                speak("is " + str(result_app) + " you, want to close?")
-                                yes_no = denypower()
-                                if 'no' in yes_no or 'na' in yes_no or "don't" in yes_no:
-                                    speak("ok!")
-                                    pass
-                                else:
-                                    for pid in subprocess.run(['pidof', str(result_app)],
-                                                              capture_output=True).stdout.decode().split():
-                                        kill_point = os.system("kill -9 " + pid)
-                                        if kill_point != 0:
-                                            raise_error()
-                                            break
-                                        else:
-                                            continue
-                                    speak("done!")
-                                    continue
+                        if 'video' in inquest or 'song' in inquest or 'play' in inquest or 'music' in inquest:
+                            if x != '' or x is not None:
+                                with AskPass() as ask:
+                                    for x in ask:
+                                        os.system(
+                                            "echo " + x + "| sudo kill " + open(os.path.join(sys.path[0], "PID.txt"),
+                                                                                "r").read())
+                            else:
+                                os.system(
+                                    "echo " + x + "| sudo kill " + open(os.path.join(sys.path[0], "PID.txt"),
+                                                                        "r").read())
+                            speak('play down!')
+                        else:
+                            try:
+                                from process_list import ongoing_list
+
+                                success = os.system("pkill " +
+                                                    process.extractOne(
+                                                        inquest.replace("close", "").replace("stop", "").replace(" ",
+                                                                                                                 ""),
+                                                        ongoing_list())[0])
+                                if success != 0:
+                                    with open(os.path.join(sys.path[0], "app name.txt"), 'w+') as write_app:
+                                        write_app.write(
+                                            inquest.replace("close", "").replace("stop", "").replace(" ", ""))
+                                        write_app.close()
+                                    os.system("python3 " + os.path.join(sys.path[0], "select_app.py"))
+                                    with open(os.path.join(sys.path[0], "app_name.txt"), "r") as read_app_name:
+                                        result_app = read_app_name.read()
+                                        read_app_name.close()
+                                    speak("is " + str(result_app) + " you, want to close?")
+                                    yes_no = denypower()
+                                    if 'no' in yes_no or 'na' in yes_no or "don't" in yes_no:
+                                        speak("ok!")
+                                        pass
+                                    else:
+                                        for pid in subprocess.run(['pidof', str(result_app)],
+                                                                  capture_output=True).stdout.decode().split():
+                                            kill_point = os.system("kill -9 " + pid)
+                                            if kill_point != 0:
+                                                raise_error()
+                                                break
+                                            else:
+                                                continue
+                                        speak("done!")
+                                        continue
 
 
 
 
-                        except Exception:
+                            except Exception:
 
-                            speak("I tried but couldn't do it. Please close manually. ")
+                                speak("I tried but couldn't do it. Please close manually. ")
 
                     elif 'silence' in inquest or 'shut up' in inquest:
                         speak("okey!")
                         break
+                    elif 'system' in inquest:
+
+                        if 'shutdown' in inquest:
+                            with AskPass() as ask:
+                                for x in ask:
+                                    os.system(
+                                        "echo " + x + "| sudo shutdown -n")
+                            speak('shutdown incited!')
+                        elif 'reboot' in inquest:
+                            with AskPass() as ask:
+                                for x in ask:
+                                    os.system(
+                                        "echo " + x + "| sudo reboot")
+                                speak('rebooting! ')
+                        elif 'log ' in inquest and ' out' in inquest:
+                            with AskPass() as ask:
+                                for x in ask:
+                                    os.system(
+                                        "/usr/bin/gnome-session-quit --no-prompt")
+                                    speak("Ready to log out!")
+                        else:
+                            pass
+                    elif 'play' in inquest:
+                        with open(os.path.join(sys.path[0], "inquest_youtube.txt"), "w+") as youtube_inquest:
+                            youtube_inquest.write(inquest)
+                            youtube_inquest.close()
+                        os.system("nohup python3 " + os.path.join(sys.path[0], "Youtube_video_play.py") + " &")
                     speak(chatbot(inquest))

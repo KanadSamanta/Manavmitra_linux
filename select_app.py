@@ -50,6 +50,16 @@ def get_flatpak():
         pass
 
 
+def get_snap():
+    try:
+        cmd = ['/usr/bin/snap', 'list']
+        process = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
+        stdout, stderr = process.communicate()
+        return stdout.decode().replace('\t', ' ').split('\n')
+    except FileNotFoundError:
+        pass
+
+
 def get_apt():
     cmd = ['/usr/bin/dpkg', '--get-selections']
     process = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
@@ -62,6 +72,7 @@ if __name__ == "__main__":
     names_only = []
     flatpak = True
     apt = True
+    snap = True
     with open(os.path.join(sys.path[0], "app name.txt"), 'r') as read_app:
         search_string = read_app.read()
         read_app.close()
@@ -79,7 +90,18 @@ if __name__ == "__main__":
         except TypeError:
             names_only.clear()
             pass
+
         finally:
+            if snap:
+                pkgs = get_snap()
+                for pkg in pkgs:
+                    if ' ' in pkg:
+                        snap_app = pkg.replace('install', '').replace(" ", "").split(".")[0]
+
+                        snap_app = ''.join([i for i in snap_app if not i.isdigit()])
+
+                        names_only.append(snap_app)
+
             if apt:
                 pkgs = get_apt()
                 for pkg in pkgs:
@@ -95,13 +117,22 @@ if __name__ == "__main__":
                     continue
             result_apps.append(app)
     print(result_apps)'''
+        refine_app_name = []
+        for app in names_only:
+            if app.endswith("+") or app.endswith("-"):
+                refine_app_name.append(app.replace("-", "").replace("+", ""))
+            elif "/" in app or "--" in app:
+                pass
+            else:
+                refine_app_name.append(app)
+        print(refine_app_name)
         try:
             from fuzzywuzzy import process
         except ModuleNotFoundError:
             os.system('pip3 install fuzzywuzzy')
             from fuzzywuzzy import process
 
-        result_app = process.extractOne(search_string, names_only)[0]
+        result_app = process.extractOne(search_string, refine_app_name)[0]
         with open(os.path.join(sys.path[0], "app_name.txt"), "w+") as app_name:
             app_name.write(result_app)
             app_name.close()

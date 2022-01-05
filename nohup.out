@@ -1,0 +1,6 @@
+/usr/lib/python3/dist-packages/requests/__init__.py:89: RequestsDependencyWarning: urllib3 (1.26.7) or chardet (3.0.4) doesn't match a supported version!
+  warnings.warn("urllib3 ({}) or chardet ({}) doesn't match a supported "
+Traceback (most recent call last):
+  File "Youtube_video_play.py", line 7, in <module>
+    browser_control(video_search(open(os.path.join(sys.path[0], "inquest_youtube.txt").read()).replace("play", ""))["url"])
+AttributeError: 'str' object has no attribute 'read'
