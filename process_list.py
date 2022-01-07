@@ -1,26 +1,11 @@
-import subprocess
+import os, sys, subprocess
 
-
-def ongoing_list():
-    pl = subprocess.Popen(['ps', '-U', '0'], stdout=subprocess.PIPE).communicate()[0]
-
-    process_name_list = []
-
-    for line in pl.decode().splitlines():
-
-        line1 = line.split(" ")
-
-        for i in line1:
-            if "/" in i:
-                print(i)
-                process_name_list.append(i.split("/")[0])
-
-    print(process_name_list)
-    return process_name_list
-
-
-ongoing_list()
-if 'firefox' in ongoing_list():
-    print(True)
-else:
-    print(False)
+'''apps = subprocess.run('for app in /usr/share/applications/*.desktop; do echo "${app:24:-8}"; done', capture_output=True)
+print(apps)'''
+app_names = []
+for app in os.listdir('/usr/share/applications/'):
+    if app.endswith(".desktop"):
+        app_names.append(app.replace(".desktop", ""))
+print(app_names)
+if 'pycharm-community-2021.3/' in app_names:
+    print("True")

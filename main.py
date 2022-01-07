@@ -1,9 +1,14 @@
 import os, sys, shutil, webbrowser, random, requests, time, traceback, string, json
 
 try:
+    from askpass import AskPass
+except ImportError:
+    os.system('pip3 install askpass')
+    from askpass import AskPass
+x = None
+try:
     from newspaper import Article
 except ModuleNotFoundError:
-    from askpass import AskPass
 
     with AskPass() as ask:
         for x in ask:
@@ -53,12 +58,12 @@ except ImportError:
     # os.system("conda install -c anaconda cmake -y")
 
     os.system("pip3 install askpass")
-    from askpass import AskPass
 
     with AskPass() as ask:
         for x in ask:
             os.system(
-                "echo " + x + "| sudo -S apt-get install libasound-dev portaudio19-dev libportaudio2 libportaudiocpp0 "
+                "echo " + x + "|sudo  -S -S apt-get install libasound-dev portaudio19-dev libportaudio2 "
+                              "libportaudiocpp0 "
                               "ffmpeg libav-tools -y")
             break
 
@@ -142,7 +147,6 @@ except ImportError:
     os.system("conda install -c conda-forge dlib -y")
 
     os.system("pip3 install askpass")
-    from askpass import AskPass
 
     with AskPass() as ask:
         for x in ask:
@@ -368,7 +372,6 @@ def speak(audio, vasa='en'):
                 pass
         except Exception:
             try:
-                from askpass import AskPass
 
                 with AskPass() as ask:
                     for x in ask:
@@ -465,7 +468,7 @@ if conformation:
                 passs = False
         if "wake up" in conformation_speech or "manav" in conformation_speech or passs:
             speak(
-                "Hello, I am you digital assistant manavmitra, if you want to ask me anything try calling me 'sonia'.""Tell me how can I help you?")
+                "Hello, I am your digital assistant manavmitra, if you want to ask me anything try calling me 'sonia'.""Tell me how can I help you?")
             while True:
 
                 def myline(vasa='en'):
@@ -541,33 +544,53 @@ if conformation:
                         try:
                             if 'search' not in inquest:
                                 app_name = inquest.replace("open", "").replace("start", "")
-                                with open(os.path.join(sys.path[0], "app name.txt"), 'w+') as write_app:
-                                    write_app.write(app_name)
-                                    write_app.close()
-                                os.system("python3 " + os.path.join(sys.path[0], "select_app.py"))
-                                with open(os.path.join(sys.path[0], "app_name.txt"), "r") as read_app_name:
-                                    result_app = read_app_name.read()
-                                    read_app_name.close()
-                                speak("is " + str(result_app) + " you, want to open?")
-                                yes_no = denypower()
-                                if 'no' in yes_no or 'na' in yes_no or "don't" in yes_no:
-                                    speak("ok!")
-                                    continue
-                                else:
-                                    '''app_start = subprocess.run([str(result_app)], capture_output=True)
-                                    if app_start.returncode != 0:
-                                        error_popup(app_start.stderr)
-                                        speak("I tried but couldn't do it. Please open manually. Here are some "
-                                              "internet info!")
+                                from find_file import find_file
+
+                                try:
+                                    if ' folder' in inquest:
+                                        find_file(app_name.replace('folder', ''), isfolder=True)
+                                    elif ' file' in inquest:
+                                        find_file(app_name.replace('file', ''), isfile=True)
+                                    elif ' app' in inquest:
+                                        inquest = inquest.replace('app', '')
                                         raise_error()
                                     else:
-                                        pass'''
-                                    try:
-                                        os.system('nohup python3 ' + os.path.join(sys.path[0], 'start_app.py') + ' &')
-                                    except FileNotFoundError:
-                                        os.system("nohup " + str(result_app) + " &")
+                                        if find_file(app_name) is None:
+                                            raise_error()
+                                        else:
+                                            pass
+                                    speak('here!')
+                                except Exception:
+                                    with open(os.path.join(sys.path[0], "app name.txt"), 'w+') as write_app:
+                                        write_app.write(app_name)
+                                        write_app.close()
+                                    os.system("python3 " + os.path.join(sys.path[0], "select_app.py"))
+                                    with open(os.path.join(sys.path[0], "app_name.txt"), "r") as read_app_name:
+                                        result_app = read_app_name.read()
+                                        read_app_name.close()
+                                    speak("do you, want to open " + str(result_app) + "?")
+                                    yes_no = denypower()
+                                    if 'no' in yes_no or 'na' in yes_no or "don't" in yes_no:
+                                        speak("ok!")
+                                        continue
+                                    else:
+                                        speak("opening " + result_app)
+                                        '''app_start = subprocess.run([str(result_app)], capture_output=True)
+                                        if app_start.returncode != 0:
+                                            error_popup(app_start.stderr)
+                                            speak("I tried but couldn't do it. Please open manually. Here are some "
+                                                  "internet info!")
+                                            raise_error()
+                                        else:
+                                            pass'''
+                                        try:
+                                            os.system(
+                                                'nohup python3 ' + os.path.join(sys.path[0], 'start_app.py') + ' &')
+                                        except FileNotFoundError:
+                                            os.system("nohup " + str(result_app) + " &")
 
-                                    continue
+                                        continue
+
                             else:
                                 raise_error(traceback.format_exc())
                         except Exception:
@@ -576,16 +599,36 @@ if conformation:
                     elif "close " in inquest or "stop " in inquest:
 
                         if 'video' in inquest or 'song' in inquest or 'play' in inquest or 'music' in inquest:
-                            if x != '' or x is not None:
+                            if x == '' or x is None:
+
                                 with AskPass() as ask:
                                     for x in ask:
+                                        pid = open(os.path.join(sys.path[0], "PID.txt"), "r")
+                                        PID = pid.read()
+                                        pid.close()
                                         os.system(
-                                            "echo " + x + "| sudo kill " + open(os.path.join(sys.path[0], "PID.txt"),
-                                                                                "r").read())
+                                            "echo " + x + " |sudo  -S kill " + PID)
+                                        for pid in subprocess.run(['pidof', 'firefox'],
+                                                                  capture_output=True).stdout.decode().split():
+                                            kill_point = os.system("echo " + x + " |sudo  -S kill " + pid)
+                                            if kill_point != 0:
+                                                raise_error()
+                                                break
+                                            else:
+                                                continue
+                                        break
                             else:
                                 os.system(
-                                    "echo " + x + "| sudo kill " + open(os.path.join(sys.path[0], "PID.txt"),
-                                                                        "r").read())
+                                    "echo " + x + " |sudo  -S kill " + open(os.path.join(sys.path[0], "PID.txt"),
+                                                                            "r").read())
+                                for pid in subprocess.run(['pidof', 'firefox'],
+                                                          capture_output=True).stdout.decode().split():
+                                    kill_point = os.system("echo " + x + " |sudo  -S kill " + pid)
+                                    if kill_point != 0:
+                                        raise_error()
+                                        break
+                                    else:
+                                        continue
                             speak('play down!')
                         else:
                             try:
@@ -638,13 +681,13 @@ if conformation:
                             with AskPass() as ask:
                                 for x in ask:
                                     os.system(
-                                        "echo " + x + "| sudo shutdown -n")
+                                        "echo " + x + " |sudo  -S shutdown -n")
                             speak('shutdown incited!')
                         elif 'reboot' in inquest:
                             with AskPass() as ask:
                                 for x in ask:
                                     os.system(
-                                        "echo " + x + "| sudo reboot")
+                                        "echo " + x + " |sudo  -S reboot")
                                 speak('rebooting! ')
                         elif 'log ' in inquest and ' out' in inquest:
                             with AskPass() as ask:

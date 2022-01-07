@@ -108,7 +108,7 @@ if __name__ == "__main__":
                     if ' ' in pkg:
                         names_only.append(pkg.replace('install', '').replace(" ", ""))
 
-        print(names_only)
+        #print(names_only)
 
         '''result_apps = []
         for app in names_only:
@@ -125,7 +125,12 @@ if __name__ == "__main__":
                 pass
             else:
                 refine_app_name.append(app)
-        print(refine_app_name)
+        #print(refine_app_name)
+        for app in os.listdir('/usr/share/applications/'):
+            if app.endswith(".desktop"):
+                refine_app_name.append(app.replace(".desktop", ""))
+        if 'pycharm-community-2021.3' in refine_app_name:
+            print('True')
         try:
             from fuzzywuzzy import process
         except ModuleNotFoundError:
@@ -136,7 +141,7 @@ if __name__ == "__main__":
         with open(os.path.join(sys.path[0], "app_name.txt"), "w+") as app_name:
             app_name.write(result_app)
             app_name.close()
-        print(result_app)
+        #print(result_app)
     else:
 
         error_popup("There is no app listed!")
