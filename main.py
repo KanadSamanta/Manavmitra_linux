@@ -1,11 +1,11 @@
 import os, sys, shutil, webbrowser, random, requests, time, traceback, string, json
-
+os.system("xterm vis &")
 try:
     from askpass import AskPass
 except ImportError:
     os.system('pip3 install askpass')
     from askpass import AskPass
-x = None
+
 try:
     from newspaper import Article
 except ModuleNotFoundError:
@@ -257,6 +257,11 @@ except ModuleNotFoundError:
 
     from playsound import playsound
 w = ''
+with AskPass() as ask:
+    for x in ask:
+        x = x
+        print("password saved!")
+        break
 
 
 def rescale_frame(frame, percent=75):
@@ -453,6 +458,8 @@ def google_bot(query):
     return article.text
 
 
+
+
 from facerecognition import conformation
 
 if conformation:
@@ -585,7 +592,8 @@ if conformation:
                                             pass'''
                                         try:
                                             os.system(
-                                                'nohup python3 ' + os.path.join(sys.path[0], 'start_app.py') + ' &')
+                                                'nohup ' + sys.executable + " " + os.path.join(sys.path[0],
+                                                                                               'start_app.py') + ' &')
                                         except FileNotFoundError:
                                             os.system("nohup " + str(result_app) + " &")
 
@@ -681,8 +689,8 @@ if conformation:
                             with AskPass() as ask:
                                 for x in ask:
                                     os.system(
-                                        "echo " + x + " |sudo  -S shutdown -n")
-                            speak('shutdown incited!')
+                                        "echo " + x + " |sudo  -S shutdown now")
+                            speak('shutdown initiated!')
                         elif 'reboot' in inquest:
                             with AskPass() as ask:
                                 for x in ask:
